@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+      - uses: rui314/setup-mold@v1
         with:
           profile: minimal
           toolchain: stable
@@ -26,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+      - uses: rui314/setup-mold@v1
         with:
           toolchain: stable
           override: true
@@ -41,6 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+      - uses: rui314/setup-mold@v1
         with:
           toolchain: stable
           override: true
