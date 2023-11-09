@@ -1,4 +1,5 @@
 use std::net::TcpListener;
+use zero2prod::startup::run;
 
 #[tokio::test]
 async fn health_check_works() {
@@ -84,7 +85,7 @@ async fn subscribe_returns_a_400_for_invalid_form_data() {
 fn spawn_app() -> String {
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
-    let server = zero2prod::run(listener).expect("Failed to spawn app for running tests");
+    let server = run(listener).expect("Failed to spawn app for running tests");
     let _ = tokio::spawn(server);
     format!("http://127.0.0.1:{}", port)
 }
