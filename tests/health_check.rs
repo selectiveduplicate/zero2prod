@@ -1,5 +1,7 @@
 use std::net::TcpListener;
-use zero2prod::startup::run;
+use zero2prod::{startup::run, configuration::get_configuration};
+
+use sqlx::{Connection, PgConnection};
 
 #[tokio::test]
 async fn health_check_works() {
@@ -26,18 +28,22 @@ async fn health_check_works() {
 async fn subscribe_returns_a_200_for_valid_form_data() {
     // Spawn our app and take the address it's running on
     let app_url = spawn_app();
-
     // Create a client using reqwest
     let client = reqwest::Client::new();
-
     // The body of the POST request
     let body = "name=fernando%20pessoa&email=fernando_pessoa%40gmail.com";
 
+    // Try to connect to the Postgres database
+    let configuration = get_configuration().expect("Failed to read configuration");
+    let connection_string = configuration.database_settings.connection_string();
+    let _connection = PgConnection::connect(&connection_string).await.expect("Failed to connect to postgres");
+
     // Use the client to interact with the server and
-    // get the response from the `/health_check` endpoint
+    // get the response from the `/subscriptions` endpoint
     let response = client
         .get(&format!("{}/subscriptions", &app_url))
         .header("Content-Type", "application/x-www-form-urlencoded")
+        // Setting the body makes this a POST request
         .body(body)
         .send()
         .await
