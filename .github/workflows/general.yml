@@ -82,9 +82,6 @@ jobs:
         with:
           # Specific to dtolnay/rust-toolchain: Comma-separated string of additional components to install
           components: rustfmt
-      - uses: rui314/setup-mold@v1
-        with:
-          components: rustfmt
       - name: Enforce formatting
         run: cargo fmt --check
 
