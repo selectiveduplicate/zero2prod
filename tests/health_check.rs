@@ -36,7 +36,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     // Try to connect to the Postgres database
     let configuration = get_configuration().expect("Failed to read configuration");
     let connection_string = configuration.database_settings.connection_string();
-    let _connection = PgConnection::connect(&connection_string).await.expect("Failed to connect to postgres");
+    let mut connection = PgConnection::connect(&connection_string).await.expect("Failed to connect to postgres");
 
     // Use the client to interact with the server and
     // get the response from the `/subscriptions` endpoint
@@ -51,6 +51,14 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
     assert!(response.status().is_success());
     assert_eq!(response.status().as_u16(), 200);
+
+    let subscriber_details = sqlx::query!("SELECT email, name FROM subscriptions",)
+            .fetch_one(&mut connection)
+            .await
+            .expect("Failed to fetch subscription");
+
+    assert_eq!(subscriber_details.email, "fernando_pessoa@gmail.com");
+    assert_eq!(subscriber_details.name, "fernando pessoa");
 }
 
 #[tokio::test]
