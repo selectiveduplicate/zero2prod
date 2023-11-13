@@ -1,5 +1,5 @@
 use std::net::TcpListener;
-use zero2prod::{startup::run, configuration::get_configuration};
+use zero2prod::{configuration::get_configuration, startup::run};
 
 use sqlx::{Connection, PgConnection};
 
@@ -36,7 +36,9 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     // Try to connect to the Postgres database
     let configuration = get_configuration().expect("Failed to read configuration");
     let connection_string = configuration.database_settings.connection_string();
-    let mut connection = PgConnection::connect(&connection_string).await.expect("Failed to connect to postgres");
+    let mut connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to postgres");
 
     // Use the client to interact with the server and
     // get the response from the `/subscriptions` endpoint
@@ -53,9 +55,9 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     assert_eq!(response.status().as_u16(), 200);
 
     let subscriber_details = sqlx::query!("SELECT email, name FROM subscriptions",)
-            .fetch_one(&mut connection)
-            .await
-            .expect("Failed to fetch subscription");
+        .fetch_one(&mut connection)
+        .await
+        .expect("Failed to fetch subscription");
 
     assert_eq!(subscriber_details.email, "fernando_pessoa@gmail.com");
     assert_eq!(subscriber_details.name, "fernando pessoa");
@@ -74,7 +76,7 @@ async fn subscribe_returns_a_400_for_invalid_form_data() {
         ("name=fernando%20pessoa", "email is missing"),
         ("email=fernando_pessoa%40gmail.com", "name is missing"),
         ("", "missing both name and email"),
-    ]; 
+    ];
 
     for (invalid_body, err_msg) in test_cases {
         let response = client
